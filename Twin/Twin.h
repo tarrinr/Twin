@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <vector>
 
 class Twin {
