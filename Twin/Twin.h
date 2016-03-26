@@ -122,7 +122,7 @@ void Twin::wincheck() {
 
 	for (auto&& i : buffer) {
 
-		if (int(i.length()) > b) b = i.length();
+		if (int(i.length()) > b) b = int(i.length());
 
 	}
 
