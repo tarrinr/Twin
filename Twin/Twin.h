@@ -3,29 +3,43 @@
 
 #include <windows.h>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <sstream>
 #include <vector>
 
+typedef std::vector<double> vec;
+typedef std::vector<vec> mat;
+
 class Twin {
 public:
-	Twin(std::string);
-	int rows();
-	int columns();
+	Twin(const std::string &);
 	template<typename T>
-	void println(T);
+	void println(const T &);
 	void println();
 	template<typename T>
-	void print(T);
+	void print(const T &);
 	template<typename T>
-	void printmulti(T);
-	void display();
-	void clear();
+	void printmulti(const T &);
+	template<typename T>
+	void getInput(T &);
+	void getInput();
+	~Twin();
+	void toFile();
+	void toFile(const std::string &);
+	vec gvec();
+	void dvec(const vec&);
+	mat gmat();
+	void dmat(const mat&);
 private:
 	void size();
 	void line();
+	int rows();
+	int columns();
+	void display();
+	void clear();
 	void wincheck();
-	int x,y;
+	int x, y;
 	std::vector<std::string> buffer;
 	std::string pname;
 
@@ -52,7 +66,7 @@ int Twin::columns() {
 }
 
 template<typename T>
-void Twin::print(T in) {
+void Twin::print(const T &in) {
 
 	if (buffer.size() == 0) buffer.push_back("");
 
@@ -67,7 +81,7 @@ void Twin::print(T in) {
 }
 
 template<typename T>
-void Twin::println(T in) {
+void Twin::println(const T &in) {
 
 	std::ostringstream oss;
 	oss << in;
@@ -77,16 +91,11 @@ void Twin::println(T in) {
 }
 
 template<typename T>
-void Twin::printmulti(T in) {
+void Twin::printmulti(const T &in) {
 
-	std::ostringstream oss;
+	for (auto &i : in)
+		println(i);
 
-	int i = 0;
-
-	while (oss << in[i]) {
-		buffer.push_back(oss.str());
-		i++
-	}
 }
 
 void Twin::println() {
@@ -120,7 +129,7 @@ void Twin::wincheck() {
 
 	int b = 0;
 
-	for (auto&& i : buffer) {
+	for (auto &i : buffer) {
 
 		if (int(i.length()) > b) b = int(i.length());
 
@@ -128,17 +137,26 @@ void Twin::wincheck() {
 
 	while (y - 8 - int(buffer.size()) < 1 || int(pname.length()) > x - 4 || int(b) > x - 8) {
 
-		std::cout << "  Window too small. . .";
+		std::cout << std::endl << "Window too small.";
+		std::cout << std::endl << "Enter 'x' to output to file, or resize window and enter 'r': ";
 
+		char temp;
+		std::cin >> temp;
 		std::cin.ignore(1000, '\n');
 		std::cin.clear();
+
+		if (temp == 'x' || temp == 'X') {
+			toFile();
+			buffer.push_back("[See " + pname + ".txt for output.]");
+		}
+
 		size();
 
 	}
 
 }
 
-Twin::Twin(std::string name) {
+Twin::Twin(const std::string &name) {
 
 	pname = name;
 
@@ -156,5 +174,203 @@ void Twin::line() {
 
 void Twin::clear() {
 	buffer.clear();
+}
+
+template<typename T>
+void Twin::getInput(T &var) {
+	std::vector<std::string> backup = buffer;
+
+	while (true) {
+		display();
+
+		if (std::cin >> var) {
+			std::cin.ignore(1000, '\n');
+			std::cin.clear();
+
+			buffer.push_back("Input:");
+			buffer.push_back("");
+			println(var);
+			buffer.push_back("");
+			buffer.push_back("Enter 'x' to save and continue.");
+			display();
+
+			char temp;
+			std::cin >> temp;
+			std::cin.ignore(1000, '\n');
+			std::cin.clear();
+
+			if (temp == 'x' || temp == 'X') break;
+			else buffer = backup;
+		}
+		else {
+
+			std::cin.clear();
+			std::cin.ignore(1000, '\n');
+
+			buffer.push_back("Invalid entry.");
+			buffer.push_back("");
+			buffer.push_back("Press enter to continue.");
+			display();
+			buffer = backup;
+
+			std::cin.ignore(1000, '\n');
+			std::cin.clear();
+		}
+	}
+
+}
+
+void Twin::getInput() {
+
+	buffer.push_back("Press enter to continue.");
+	display();
+
+	std::cin.ignore(1000, '\n');
+	std::cin.clear();
+
+}
+
+
+Twin::~Twin() {
+
+	buffer.push_back("Press enter to exit. . .");
+	display();
+
+	std::cin.ignore(1000, '\n');
+	std::cin.clear();
+
+}
+
+void Twin::toFile() {
+
+	std::ofstream fout(pname + ".txt");
+	if (fout.is_open()) {
+		for (auto &i : buffer)
+			fout << i << std::endl;
+
+		fout.close();
+		buffer.clear();
+		buffer.push_back("Saved output to " + pname + ".txt.");
+		buffer.push_back("");
+		getInput();
+	}
+	else std::cout << std::endl << "Unable to open file.";
+}
+
+void Twin::toFile(const std::string &name) {
+
+	std::ofstream fout(name);
+	if (fout.is_open()) {
+		for (auto &i : buffer)
+			fout << i << std::endl;
+
+		fout.close();
+		buffer.clear();
+		buffer.push_back("Saved output to " + name);
+		buffer.push_back("");
+		getInput();
+	}
+	else std::cout << std::endl << "Unable to open file.";
+}
+
+vec Twin::gvec() {
+
+	display();
+	vec b;
+	double in;
+	std::string input;
+
+	std::getline(std::cin, input);
+	std::stringstream iss(input);
+	iss >> in;
+	b.push_back(in);
+
+	while (true) {
+
+		println("Vector:");
+		println();
+		dvec(b);
+		println("Enter the next element.");
+		println("Enter 'x' to save and continue.");
+		display();
+
+		std::getline(std::cin, input);
+		std::stringstream iss(input);
+		iss >> in;
+
+		if (input == "x" || input == "X") return b;
+		else b.push_back(in);
+
+	}
+}
+
+void Twin::dvec(const vec& vec) {
+
+	for (auto&& i : vec) {
+		println("[ ");
+		print(i);
+		print(" ]");
+	}
+
+	println();
+}
+
+mat Twin::gmat() {
+
+	display();
+	mat a;
+	double in;
+	std::string input;
+
+	std::getline(std::cin, input);
+	std::stringstream iss(input);
+	a.push_back(vec());
+	while (iss >> in) a[0].push_back(in);
+
+	for (int i = 1; i > 0; i++) {
+
+		println("Matrix:");
+		println();
+		dmat(a);
+		println("Enter the next row.");
+		println("Enter 'x' to save and continue.");
+		display();
+
+		std::getline(std::cin, input);
+		std::stringstream iss(input);
+		if (input == "x" || input == "X") i = -1;
+
+		else {
+			a.push_back(vec());
+			while (iss >> in) a[i].push_back(in);
+
+			if (a[i].size() != a[0].size()) {
+				println("Invalid row.");
+				a.pop_back();
+				i--;
+			}
+		}
+	}
+	return a;
+}
+
+void Twin::dmat(const mat& mat) {
+
+	println();
+
+	for (int i = 0; i < int(mat.size()); i++) {
+
+		print("[ ");
+
+		for (int j = 0; j < int(mat[0].size()); j++) {
+			print(mat[i][j]);
+			if (j < int(mat[0].size()) - 1) print(",");
+			print(" ");
+		}
+
+		print("]");
+		println();
+
+	}
 }
 #endif
