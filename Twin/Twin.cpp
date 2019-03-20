@@ -59,7 +59,7 @@ void Twin::wincheck() {
 
 	}
 
-	while (y - 8 - int(buffer.size()) < 1 || int(pname.length()) > x - 4 || int(b) > x - 8) {
+	while (y - 8 - int(buffer.size()) < 1 || int(pname.length()) > x - 4 || int(b) > x - 8 || x < 120 || y < 30) {
 
 		std::cout << std::endl << "Window too small.";
 		std::cout << std::endl << "Enter 'x' to output to file, or resize window and enter 'r': ";
@@ -96,7 +96,10 @@ Twin::Twin(const std::string &name) {
 	line();
 	std::cout << "  " << pname << std::endl;
 	line();
-	std::cout << std::endl << std::endl;
+
+    std::cout << std::endl << std::endl;
+	for (int i = 0; i < (y - 36)/2; i++)
+        std::cout << std::endl;
 
 std::cout << ws << "                 .@@@@@        " << std::endl;
 std::cout << ws << "                .@@@@@@        " << std::endl;
@@ -197,7 +200,6 @@ void Twin::getInput() {
 
 }
 
-
 Twin::~Twin() {
 
 	//buffer.push_back("Press enter to exit. . .");
@@ -205,10 +207,11 @@ Twin::~Twin() {
 
 	//std::cin.ignore(1000, '\n');
 	//std::cin.clear();
+    system("clear");
 
 }
 
-void Twin::toFile() {
+bool Twin::toFile() {
 
 	std::ofstream fout(pname + ".txt");
 	if (fout.good()) {
@@ -217,14 +220,23 @@ void Twin::toFile() {
 
 		fout.close();
 		buffer.clear();
-		buffer.push_back("Saved output to " + pname + ".txt.");
+		buffer.push_back("Saved output to '" + pname + ".txt'.");
 		buffer.push_back("");
 		getInput();
+		return 0;
 	}
-	else std::cout << std::endl << "Unable to open file.";
+	else {
+		std::vector<std::string> backup = buffer;
+		buffer.clear();
+		buffer.push_back("Unable to open '" + pname + ".txt'.");
+		buffer.push_back("");
+		getInput();
+		buffer = backup;
+		return 1;
+	}
 }
 
-void Twin::toFile(const std::string &name) {
+bool Twin::toFile(const std::string &name) {
 
 	std::ofstream fout(name);
 	if (fout.good()) {
@@ -233,11 +245,20 @@ void Twin::toFile(const std::string &name) {
 
 		fout.close();
 		buffer.clear();
-		buffer.push_back("Saved output to " + name);
+		buffer.push_back("Saved output to '" + name + "'.");
 		buffer.push_back("");
 		getInput();
+		return 0;
 	}
-	else std::cout << std::endl << "Unable to open file.";
+	else {
+		std::vector<std::string> backup = buffer;
+		buffer.clear();
+		buffer.push_back("Unable to open '" + name + "'.");
+		buffer.push_back("");
+		getInput();
+		buffer = backup;
+		return 1;
+	}
 }
 
 vec Twin::gvec() {
@@ -364,7 +385,10 @@ void Twin::loading(int progress, bool done) {
 	line();
 	std::cout << "  " << pname << std::endl;
 	line();
-	std::cout << std::endl << std::endl;
+	
+    std::cout << std::endl << std::endl;
+	for (int i = 0; i < (y - 36)/2; i++)
+        std::cout << std::endl;
 
 std::cout << ws << "                 .@@@@@        " << std::endl;
 std::cout << ws << "                .@@@@@@        " << std::endl;
