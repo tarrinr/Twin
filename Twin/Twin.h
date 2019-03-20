@@ -8,7 +8,7 @@
 #include <sstream>
 #include <vector>
 
-typedef std::vector<double> vec;
+typedef std::vector<int> vec;
 typedef std::vector<vec> mat;
 
 class Twin {
@@ -27,8 +27,8 @@ public:
 	void getInput();
 	void loading(int, bool);
 	~Twin();
-	void toFile();
-	void toFile(const std::string &);
+	bool toFile();
+	bool toFile(const std::string &);
 	vec gvec();
 	void dvec(const vec&);
 	mat gmat();
